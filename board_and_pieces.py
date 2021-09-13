@@ -1,3 +1,8 @@
+from enum import Enum
+
+class Colour(Enum):
+    WHITE = 1
+    BLACK = 2
 
 class Piece:
     def __init__(self, x: int, y: int, colour: str, letter: str) -> None:
@@ -10,36 +15,28 @@ class Piece:
     def on_board(self, x: int, y: int) -> bool:
         return 0 <= x < 8 and 0 <= y < 8
 
-
 class Knight(Piece):
-    def __init__(self, x: int, y: int, colour: str, letter: str) -> None:
-        Piece.__init__(self, x, y, colour, letter)
+    pass
 
 
 class Bishop(Piece):
-    def __init__(self, x: int, y: int, colour: str, letter: str) -> None:
-        Piece.__init__(self, x, y, colour, letter)
+    pass
 
 
 class Rook(Piece):
-    def __init__(self, x: int, y: int, colour: str, letter: str) -> None:
-        Piece.__init__(self, x, y, colour, letter)
+    pass
 
 
 class Queen(Piece):
-    def __init__(self, x: int, y: int, colour: str, letter: str) -> None:
-        Piece.__init__(self, x, y, colour, letter)
+    pass
 
 
 class King(Piece):
-    def __init__(self, x: int, y: int, colour: str, letter: str) -> None:
-        Piece.__init__(self, x, y, colour, letter)
+    pass
 
 
 class Pawn(Piece):
-    def __init__(self, x: int, y: int, colour: str, letter: str) -> None:
-        Piece.__init__(self, x, y, colour, letter)
-
+    pass
 
 class Board:
     def __init__(self, board_dict={}) -> None:
@@ -79,10 +76,10 @@ class Board:
             # set black knights
             self.board_dict[(1, 0)] = Knight(1, 0, "Black", "k")
             self.board_dict[(6, 0)] = Knight(6, 0, "Black", "k")
-        return
+        else:
+            self.board_dict = board_dict
 
-    def print(self) -> None:
-        s = " "
+    def __str__(self) -> None:
         for y in range(8):
             arr = []
             for x in range(8):
@@ -90,9 +87,6 @@ class Board:
                     arr.append(self.board_dict[(x, y)].letter)
                 else:
                     arr.append("-")
-            print(s.join(arr))
+            print(" ".join(arr))
         return
-
-
-board = Board()
-board.print()
+ 
