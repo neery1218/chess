@@ -5,7 +5,7 @@ class Colour(Enum):
     BLACK = 2
 
 class Piece:
-    def __init__(self, x: int, y: int, colour: str, letter: str) -> None:
+    def __init__(self, x: int, y: int, colour: Enum, letter: str) -> None:
         self.x = x
         self.y = y
         self.colour = colour
@@ -45,37 +45,37 @@ class Board:
             # WHITE PIECES
             # set white pawns
             for x in range(8):
-                self.board_dict[(x, 6)] = Pawn(x, 6, "White", "P")
+                self.board_dict[(x, 6)] = Pawn(x, 6, Colour.WHITE, "P")
             # set white king
-            self.board_dict[(4, 7)] = King(4, 7, "White", "K")
+            self.board_dict[(4, 7)] = King(4, 7, Colour.WHITE, "K")
             # set white queen
-            self.board_dict[(3, 7)] = Queen(4, 7, "White", "Q")
+            self.board_dict[(3, 7)] = Queen(4, 7, Colour.WHITE, "Q")
             # set white rooks
-            self.board_dict[(0, 7)] = Rook(0, 7, "White", "R")
-            self.board_dict[(7, 7)] = Rook(0, 7, "White", "R")
+            self.board_dict[(0, 7)] = Rook(0, 7, Colour.WHITE, "R")
+            self.board_dict[(7, 7)] = Rook(0, 7, Colour.WHITE, "R")
             # set white bishops
-            self.board_dict[(2, 7)] = Bishop(2, 7, "White", "B")
-            self.board_dict[(5, 7)] = Bishop(5, 7, "White", "B")
+            self.board_dict[(2, 7)] = Bishop(2, 7, Colour.WHITE, "B")
+            self.board_dict[(5, 7)] = Bishop(5, 7, Colour.WHITE, "B")
             # set white knights
-            self.board_dict[(1, 7)] = Knight(1, 7, "White", "K")
-            self.board_dict[(6, 7)] = Knight(6, 7, "White", "K")
+            self.board_dict[(1, 7)] = Knight(1, 7, Colour.WHITE, "K")
+            self.board_dict[(6, 7)] = Knight(6, 7, Colour.WHITE, "K")
             # BLACK PIECES
             # set black pawns
             for x in range(8):
-                self.board_dict[(x, 1)] = Pawn(x, 1, "Black", "p")
+                self.board_dict[(x, 1)] = Pawn(x, 1, Colour.BLACK, "p")
             # set black king
-            self.board_dict[(4, 0)] = King(4, 0, "Black", "k")
+            self.board_dict[(4, 0)] = King(4, 0, Colour.BLACK, "k")
             # set black queen
-            self.board_dict[(3, 0)] = Queen(4, 0, "Black", "q")
+            self.board_dict[(3, 0)] = Queen(4, 0, Colour.BLACK, "q")
             # set black rooks
-            self.board_dict[(0, 0)] = Rook(0, 0, "Black", "r")
-            self.board_dict[(7, 0)] = Rook(7, 0, "Black", "r")
+            self.board_dict[(0, 0)] = Rook(0, 0, Colour.BLACK, "r")
+            self.board_dict[(7, 0)] = Rook(7, 0, Colour.BLACK, "r")
             # set black bishops
-            self.board_dict[(2, 0)] = Bishop(2, 0, "Black", "b")
-            self.board_dict[(5, 0)] = Bishop(5, 0, "Black", "b")
+            self.board_dict[(2, 0)] = Bishop(2, 0, Colour.BLACK, "b")
+            self.board_dict[(5, 0)] = Bishop(5, 0, Colour.BLACK, "b")
             # set black knights
-            self.board_dict[(1, 0)] = Knight(1, 0, "Black", "k")
-            self.board_dict[(6, 0)] = Knight(6, 0, "Black", "k")
+            self.board_dict[(1, 0)] = Knight(1, 0, Colour.BLACK, "k")
+            self.board_dict[(6, 0)] = Knight(6, 0, Colour.BLACK, "k")
         else:
             self.board_dict = board_dict
 
