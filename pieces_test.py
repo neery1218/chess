@@ -3,7 +3,7 @@ import pytest
 
 def test_board():
     b = Board()
-    
+    print(b)
     knight_exists = False
     for piece in b.board_dict:
         if b.board_dict[piece].letter == "K":
