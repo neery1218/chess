@@ -54,31 +54,45 @@ def test_board():
     assert knight_exists
 
 def test_knight():
-    #use board1
+    # use board1
     b = read_board("board1.txt")
-    print(b)
     moves = b.board_dict[(1,7)].get_valid_moves(b, "", (0,0), (0,0))
+
+    b4 = read_board("board4.txt")
     assert set(moves) == set([(2,5), (0,5)])
 
 def test_bishop():
-    #use board1
+    # use board1
     b = read_board("board1.txt")
-    print(b)
     moves = b.board_dict[(2,7)].get_valid_moves(b, "", (0,0), (0,0))
     assert set(moves) == set([])
+
+    # use board 4
+    b4 = read_board("board4.txt")
+    moves4 = b4.board_dict[(6,3)].get_valid_moves(b4, "", (0,0), (0,0))
+
+    
+    assert set(moves4) == set([(5,2), (7,2), (7,4), (5,4), (4,5)])
 
 def test_rook():
     #use board1
     b = read_board("board1.txt")
-    print(b)
     moves = b.board_dict[(0,0)].get_valid_moves(b, "", (0,0), (0,0))
     assert set(moves) == set([])
+
+    # using board4
+    b4 = read_board("board4.txt")
+    moves4 = b4.board_dict[(4,7)].get_valid_moves(b4, "", (0,0), (0,0))
+    assert set(moves4) == set([(4,6), (4,5), (4,4), (4,3)])
+
 
 def test_queen():
     #use board1
     b = read_board("board1.txt")
-    print(b)
     moves = b.board_dict[(3,0)].get_valid_moves(b, "", (0,0), (0,0))
     assert set(moves) == set([])
 
-
+    # using board4
+    b4 = read_board("board4.txt")
+    moves4 = b4.board_dict[(2,1)].get_valid_moves(b4, "", (0,0), (0,0))
+    assert set(moves4) == set([(1,0), (3,0), (2,2), (3,2)])
