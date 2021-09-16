@@ -5,49 +5,178 @@ class Colour(Enum):
     BLACK = 2
 
 class Piece:
-    def __init__(self, x: int, y: int, colour: Enum) -> None:
+    def __init__(self, x: int, y: int, colour: Enum, has_moved = False) -> None:
         self.x = x
         self.y = y
         self.colour = colour
         self.has_moved = False
 
-    def on_board(self, x: int, y: int) -> bool:
-        return 0 <= x < 8 and 0 <= y < 8
+    def on_board(self, pos: tuple) -> bool:
+        return 0 <= pos[0] < 8 and 0 <= pos[1] < 8
 
 class Knight(Piece):
-    def __init__(self, x: int, y: int, colour: Enum):
+    def __init__(self, x: int, y: int, colour: Enum, has_moved = False):
         super().__init__(x, y, colour)
-        self.letter = "N" if colour == Colour.WHITE else "n"
+        self.letter = "♘" if colour == Colour.BLACK else "♞"
+    
+    def get_valid_moves(self, board, last_moved: str, initial_pos: str, final_pos: str):
+        x = self.x
+        y = self.y
+        all_squares = [(x+1,y-2),(x+2,y-1),(x+2, y+1),(x+1, y+2),(x-1,y-2),(x-2, y-1),(x-1, y+2),(x-2, y+1)]
+        # filter out moves that are not even on the board
+        moves_on_board = [square for square in all_squares if self.on_board(square)]
+        
+        valid_moves = [move for move in moves_on_board if (not move in board.board_dict) or (board.board_dict[move].colour != self.colour)]
+
+        return valid_moves
 
 
 class Bishop(Piece):
-    def __init__(self, x: int, y: int, colour: Enum):
+    def __init__(self, x: int, y: int, colour: Enum, has_moved = False):
         super().__init__(x, y, colour)
-        self.letter = "B" if colour == Colour.WHITE else "b"
+        self.letter = "♗" if colour == Colour.BLACK else "♝"
+
+    def get_valid_moves(self, board, last_moved: str, initial_pos: str, final_pos: str):
+        x = self.x
+        y = self.y
+        possible_moves = []
+        #going north east along the board 
+        x_inc = 1
+        y_inc = -1
+        for i in range(8):
+            if not self.on_board((x+x_inc*(i+1), y+y_inc*(i+1))):
+                break
+            elif (x+x_inc*(i+1), y+y_inc*(i+1)) in board.board_dict:
+                if board.board_dict[(x+x_inc*(i+1), y+y_inc*(i+1))].colour != self.colour:
+                    possible_moves.append((x+x_inc*(i+1), y+y_inc*(i+1)))
+                break
+            else:
+                possible_moves.append((x+x_inc*(i+1), y+y_inc*(i+1)))
+        #going north west along the board 
+        x_inc = -1
+        y_inc = -1
+        for i in range(8):
+            if not self.on_board((x+x_inc*(i+1), y+y_inc*(i+1))):
+                break
+            elif (x+x_inc*(i+1), y+y_inc*(i+1)) in board.board_dict:
+                if board.board_dict[(x+x_inc*(i+1), y+y_inc*(i+1))].colour != self.colour:
+                    possible_moves.append((x+x_inc*(i+1), y+y_inc*(i+1)))
+                break
+            else:
+                possible_moves.append((x+x_inc*(i+1), y+y_inc*(i+1)))
+        #going south east along the board 
+        x_inc = 1
+        y_inc = 1
+        for i in range(8):
+            if not self.on_board((x+x_inc*(i+1), y+y_inc*(i+1))):
+                break
+            elif (x+x_inc*(i+1), y+y_inc*(i+1)) in board.board_dict:
+                if board.board_dict[(x+x_inc*(i+1), y+y_inc*(i+1))].colour != self.colour:
+                    possible_moves.append((x+x_inc*(i+1), y+y_inc*(i+1)))
+                break
+            else:
+                possible_moves.append((x+x_inc*(i+1), y+y_inc*(i+1)))
+        #going south west along the board 
+        x_inc = -1
+        y_inc = 1
+        for i in range(8):
+            if not self.on_board((x+x_inc*(i+1), y+y_inc*(i+1))):
+                break
+            elif (x+x_inc*(i+1), y+y_inc*(i+1)) in board.board_dict:
+                if board.board_dict[(x+x_inc*(i+1), y+y_inc*(i+1))].colour != self.colour:
+                    possible_moves.append((x+x_inc*(i+1), y+y_inc*(i+1)))
+                break
+            else:
+                possible_moves.append((x+x_inc*(i+1), y+y_inc*(i+1)))
+
+        return possible_moves
 
 
 class Rook(Piece):
-    def __init__(self, x: int, y: int, colour: Enum):
+    def __init__(self, x: int, y: int, colour: Enum, has_moved = False):
         super().__init__(x, y, colour)
-        self.letter = "R" if colour == Colour.WHITE else "r"
+        self.letter = "♖" if colour == Colour.BLACK else "♜"
 
+    def get_valid_moves(self, board, last_moved: str, initial_pos: str, final_pos: str):
+        x = self.x
+        y = self.y
+        possible_moves = []
+        #going north along the board 
+        y_inc = -1
+        for i in range(8):
+            if not self.on_board((x, y+y_inc*(i+1))):
+                break
+            elif (x, y+y_inc*(i+1)) in board.board_dict:
+                if board.board_dict[(x, y+y_inc*(i+1))].colour != self.colour:
+                    possible_moves.append((x, y+y_inc*(i+1)))
+                break
+            else:
+                possible_moves.append((x, y+y_inc*(i+1)))
+        #going south along the board 
+        y_inc = 1
+        for i in range(8):
+            if not self.on_board((x, y+y_inc*(i+1))):
+                break
+            elif (x, y+y_inc*(i+1)) in board.board_dict:
+                if board.board_dict[(x, y+y_inc*(i+1))].colour != self.colour:
+                    possible_moves.append((x, y+y_inc*(i+1)))
+                break
+            else:
+                possible_moves.append((x, y+y_inc*(i+1)))
+        #going east along the board 
+        x_inc = 1
+        for i in range(8):
+            if not self.on_board((x+x_inc*(i+1), y)):
+                break
+            elif (x+x_inc*(i+1), y) in board.board_dict:
+                if board.board_dict[(x+x_inc*(i+1), y)].colour != self.colour:
+                    possible_moves.append((x+x_inc*(i+1), y))
+                break
+            else:
+                possible_moves.append((x+x_inc*(i+1), y))
+        #going west along the board 
+        x_inc = -1
+        for i in range(8):
+            if not self.on_board((x+x_inc*(i+1), y)):
+                break
+            elif (x+x_inc*(i+1), y) in board.board_dict:
+                if board.board_dict[(x+x_inc*(i+1), y)].colour != self.colour:
+                    possible_moves.append((x+x_inc*(i+1), y))
+                break
+            else:
+                possible_moves.append((x+x_inc*(i+1), y))
+        
+        return possible_moves
 
 class Queen(Piece):
-    def __init__(self, x: int, y: int, colour: Enum):
+    def __init__(self, x: int, y: int, colour: Enum, has_moved = False):
         super().__init__(x, y, colour)
-        self.letter = "Q" if colour == Colour.WHITE else "q"
+        self.letter = "♕" if colour == Colour.BLACK else "♛"
+    
+    def get_valid_moves(self, board, last_moved: str, initial_pos: str, final_pos: str):
+        rook = Rook(self.x, self.y, self.colour)
+        bishop = Bishop(self.x, self.y, self.colour) 
 
+        return rook.get_valid_moves(board, last_moved, initial_pos, final_pos) + bishop.get_valid_moves(board, last_moved, initial_pos, final_pos)
 
 class King(Piece):
-    def __init__(self, x: int, y: int, colour: Enum):
+    def __init__(self, x: int, y: int, colour: Enum, has_moved = False):
         super().__init__(x, y, colour)
-        self.letter = "K" if colour == Colour.WHITE else "k"
+        self.letter = "♔" if colour == Colour.BLACK else "♚"
+
+    def get_valid_moves(self, board, last_moved: str, initial_pos: str, final_pos: str):
+        x = self.x
+        y = self.y
 
 
 class Pawn(Piece):
-    def __init__(self, x: int, y: int, colour: Enum):
+    def __init__(self, x: int, y: int, colour: Enum, has_moved = False):
         super().__init__(x, y, colour)
-        self.letter = "P" if colour == Colour.WHITE else "p"
+        self.letter = "♙" if colour == Colour.BLACK else "♟︎"
+
+    def get_valid_moves(self, board, last_moved: str, initial_pos: str, final_pos: str):
+        x = self.x
+        y = self.y
 
 class Board:
     def __init__(self, board_dict={}) -> None:
