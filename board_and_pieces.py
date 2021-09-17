@@ -34,7 +34,6 @@ class Piece:
         return possible_moves
 
 
-
 class Knight(Piece):
     def __init__(self, x: int, y: int, colour: Enum, has_moved=False):
         super().__init__(x, y, colour)
@@ -96,11 +95,31 @@ class Pawn(Piece):
     def __init__(self, x: int, y: int, colour: Enum, has_moved=False):
         super().__init__(x, y, colour)
         self.letter = "♙" if colour == Colour.BLACK else "♟︎"
+        self.direction_factor = 1 if colour == Colour.BLACK else -1
 
     def get_valid_moves(self, board, last_moved: str, initial_pos: str, final_pos: str):
         x = self.x
         y = self.y
-
+        dir_factor = self.direction_factor
+        possible_moves = []
+        # forward squares (2 squares and 1 square)
+        if not self.has_moved and not (x, y + 2*dir_factor) in board.board_dict and not (x, y + dir_factor) in board.board_dict:
+            possible_moves.append((x, y + 2*dir_factor))
+        if not (x, y + dir_factor) in board.board_dict:
+            possible_moves.append((x, y + dir_factor))
+        # diagonal squares (x+1, y + dir_factor)
+        # Case 1: Diagonal square has opposing colour piece
+        if (x+1, y + dir_factor) in board.board_dict and board.board_dict[(x+1, y + dir_factor)].colour != self.colour:
+            possible_moves.append((x+1, y + dir_factor))
+        if (x-1, y + dir_factor) in board.board_dict and board.board_dict[(x-1, y + dir_factor)].colour != self.colour:
+            possible_moves.append((x-1, y + dir_factor))
+        # Case 2: En passant
+        if (last_moved == "♙" or last_moved == "♟︎") and abs(final_pos[1] - initial_pos[1]) == 2:
+            if (x+1, y) == final_pos:
+                possible_moves.append((x+1, y + dir_factor, "en passant"))
+            elif (x-1, y) == final_pos:
+                possible_moves.append((x-1, y + dir_factor, "en passant"))
+        return possible_moves
 
 class Board:
     def __init__(self, board_dict={}) -> None:
