@@ -53,6 +53,9 @@ class Knight(Piece):
 
         return valid_moves
 
+    def piece_copy(self):
+        return Knight(self.x, self.y, self.colour, self.has_moved)
+
 
 class Bishop(Piece):
     def __init__(self, x: int, y: int, colour: Enum, has_moved=False):
@@ -61,6 +64,9 @@ class Bishop(Piece):
 
     def get_valid_moves(self, board, last_moved: str, initial_pos: str, final_pos: str):
         return self.increment([(1, -1), (1, 1), (-1, 1), (-1, -1)], board)
+
+    def piece_copy(self):
+        return Bishop(self.x, self.y, self.colour, self.has_moved)
 
 
 class Rook(Piece):
@@ -71,6 +77,9 @@ class Rook(Piece):
     def get_valid_moves(self, board, last_moved: str, initial_pos: str, final_pos: str):
         return self.increment([(1, 0), (0, 1), (-1, 0), (0, -1)], board)
 
+    def piece_copy(self):
+        return Rook(self.x, self.y, self.colour, self.has_moved)
+
 
 class Queen(Piece):
     def __init__(self, x: int, y: int, colour: Enum, has_moved=False):
@@ -79,6 +88,9 @@ class Queen(Piece):
 
     def get_valid_moves(self, board, last_moved: str, initial_pos: str, final_pos: str):
         return self.increment([(1, 0), (0, 1), (-1, 0), (0, -1), (1, -1), (1, 1), (-1, 1), (-1, -1)], board)
+
+    def piece_copy(self):
+        return Queen(self.x, self.y, self.colour, self.has_moved)
 
 
 class King(Piece):
@@ -89,6 +101,9 @@ class King(Piece):
     def get_valid_moves(self, board, last_moved: str, initial_pos: str, final_pos: str):
         x = self.x
         y = self.y
+
+    def piece_copy(self):
+        return King(self.x, self.y, self.colour, self.has_moved)
 
 
 class Pawn(Piece):
@@ -120,6 +135,9 @@ class Pawn(Piece):
             elif (x-1, y) == final_pos:
                 possible_moves.append((x-1, y + dir_factor, "en passant"))
         return possible_moves
+
+    def piece_copy(self):
+        return Pawn(self.x, self.y, self.colour, self.has_moved)
 
 
 class Board:

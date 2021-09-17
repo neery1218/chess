@@ -122,3 +122,10 @@ def test_pawn():
     moves6 = b6.board_dict[(0, 3)].get_valid_moves(
         b6, last_moved, initial_pos, final_pos)
     assert set(moves6) == set([(0, 2), (1, 2, "en passant")])
+
+
+def test_piece_copy():
+    p = Pawn(1, 1, Colour.WHITE)
+    d = p.piece_copy()
+
+    assert p.x == d.x and p.y == d.y and p.colour == d.colour and p.has_moved == d.has_moved and p.letter == d.letter and not p is d
