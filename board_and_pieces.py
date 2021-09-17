@@ -121,6 +121,7 @@ class Pawn(Piece):
                 possible_moves.append((x-1, y + dir_factor, "en passant"))
         return possible_moves
 
+
 class Board:
     def __init__(self, board_dict={}) -> None:
         self.board_dict = {}

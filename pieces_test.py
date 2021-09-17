@@ -101,22 +101,24 @@ def test_queen():
     moves4 = b4.board_dict[(2, 1)].get_valid_moves(b4, "", (0, 0), (0, 0))
     assert set(moves4) == set([(1, 0), (3, 0), (2, 2), (3, 2)])
 
+
 def test_pawn():
     # use board1
     b = read_board("board1.txt")
     moves = b.board_dict[(0, 6)].get_valid_moves(b, "", (0, 0), (0, 0))
-    assert set(moves) == set([(0,5),(0,4)])
-    #test pawn capture (non en-passant)
+    assert set(moves) == set([(0, 5), (0, 4)])
+    # test pawn capture (non en-passant)
     b5 = read_board("board5.txt")
-    b5.board_dict[(3,3)].has_moved = True
-    b5.board_dict[(4,4)].has_moved = True
+    b5.board_dict[(3, 3)].has_moved = True
+    b5.board_dict[(4, 4)].has_moved = True
     moves5 = b5.board_dict[(3, 3)].get_valid_moves(b5, "", (0, 0), (0, 0))
-    assert set(moves5) == set([(4,4), (3,4)])
-    #test pawn capture (en-passant)
+    assert set(moves5) == set([(4, 4), (3, 4)])
+    # test pawn capture (en-passant)
     b6 = read_board("board6.txt")
     last_moved = "♙"
     initial_pos = (1, 1)
     final_pos = (1, 3)
     b6.board_dict[(0, 3)].has_moved = True
-    moves6 = b6.board_dict[(0, 3)].get_valid_moves(b6, last_moved, initial_pos, final_pos)
+    moves6 = b6.board_dict[(0, 3)].get_valid_moves(
+        b6, last_moved, initial_pos, final_pos)
     assert set(moves6) == set([(0, 2), (1, 2, "en passant")])
