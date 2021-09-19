@@ -129,3 +129,14 @@ def test_piece_copy():
     d = p.piece_copy()
 
     assert p.x == d.x and p.y == d.y and p.colour == d.colour and p.has_moved == d.has_moved and p.letter == d.letter and not p is d
+
+def test_board_copy():
+    board = Board()
+
+    copy_board = board.board_copy()
+
+    assert not copy_board is board
+
+    for piece in board.board_dict:
+        assert piece in copy_board.board_dict
+        assert board.board_dict[piece].x == copy_board.board_dict[piece].x and board.board_dict[piece].y == copy_board.board_dict[piece].y and board.board_dict[piece].colour == copy_board.board_dict[piece].colour and board.board_dict[piece].has_moved == copy_board.board_dict[piece].has_moved and board.board_dict[piece].letter == copy_board.board_dict[piece].letter

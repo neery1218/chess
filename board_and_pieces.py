@@ -11,7 +11,7 @@ class Piece:
         self.x = x
         self.y = y
         self.colour = colour
-        self.has_moved = False
+        self.has_moved = has_moved
 
     def on_board(self, pos: tuple) -> bool:
         return 0 <= pos[0] < 8 and 0 <= pos[1] < 8
@@ -39,7 +39,7 @@ class Knight(Piece):
         super().__init__(x, y, colour)
         self.letter = "♘" if colour == Colour.BLACK else "♞"
 
-    def get_valid_moves(self, board, last_moved: str, initial_pos: str, final_pos: str):
+    def get_valid_moves(self, board, last_moved: str, initial_pos: tuple, final_pos: tuple):
         x = self.x
         y = self.y
         all_squares = [(x+1, y-2), (x+2, y-1), (x+2, y+1), (x+1, y+2),
@@ -62,7 +62,7 @@ class Bishop(Piece):
         super().__init__(x, y, colour)
         self.letter = "♗" if colour == Colour.BLACK else "♝"
 
-    def get_valid_moves(self, board, last_moved: str, initial_pos: str, final_pos: str):
+    def get_valid_moves(self, board, last_moved: str, initial_pos: tuple, final_pos: tuple):
         return self.increment([(1, -1), (1, 1), (-1, 1), (-1, -1)], board)
 
     def piece_copy(self):
@@ -74,7 +74,7 @@ class Rook(Piece):
         super().__init__(x, y, colour)
         self.letter = "♖" if colour == Colour.BLACK else "♜"
 
-    def get_valid_moves(self, board, last_moved: str, initial_pos: str, final_pos: str):
+    def get_valid_moves(self, board, last_moved: str, initial_pos: tuple, final_pos: tuple):
         return self.increment([(1, 0), (0, 1), (-1, 0), (0, -1)], board)
 
     def piece_copy(self):
@@ -86,7 +86,7 @@ class Queen(Piece):
         super().__init__(x, y, colour)
         self.letter = "♕" if colour == Colour.BLACK else "♛"
 
-    def get_valid_moves(self, board, last_moved: str, initial_pos: str, final_pos: str):
+    def get_valid_moves(self, board, last_moved: str, initial_pos: tuple, final_pos: tuple):
         return self.increment([(1, 0), (0, 1), (-1, 0), (0, -1), (1, -1), (1, 1), (-1, 1), (-1, -1)], board)
 
     def piece_copy(self):
@@ -98,9 +98,15 @@ class King(Piece):
         super().__init__(x, y, colour)
         self.letter = "♔" if colour == Colour.BLACK else "♚"
 
-    def get_valid_moves(self, board, last_moved: str, initial_pos: str, final_pos: str):
+    def get_valid_moves(self, board, last_moved: str, initial_pos: tuple, final_pos: tuple):
         x = self.x
         y = self.y
+
+        all_squares = [(x-1, y-1), (x, y-1), (x+1, y-1), (x-1, y),
+                       (x+1, y), (x-1, y+1), (x, y+1), (x+1, y+1)]
+        possible_moves = [
+            square for square in all_squares if self.on_board(square)]
+        return possible_moves
 
     def piece_copy(self):
         return King(self.x, self.y, self.colour, self.has_moved)
@@ -112,7 +118,7 @@ class Pawn(Piece):
         self.letter = "♙" if colour == Colour.BLACK else "♟︎"
         self.direction_factor = 1 if colour == Colour.BLACK else -1
 
-    def get_valid_moves(self, board, last_moved: str, initial_pos: str, final_pos: str):
+    def get_valid_moves(self, board, last_moved: str, initial_pos: tuple, final_pos: tuple):
         x = self.x
         y = self.y
         dir_factor = self.direction_factor
@@ -141,7 +147,7 @@ class Pawn(Piece):
 
 
 class Board:
-    def __init__(self, board_dict={}) -> None:
+    def __init__(self, board_dict={}, last_moved=None, initial_pos=None, final_pos=None) -> None:
         self.board_dict = {}
         if len(board_dict) == 0:
             # WHITE PIECES
@@ -180,6 +186,10 @@ class Board:
             self.board_dict[(6, 0)] = Knight(6, 0, Colour.BLACK)
         else:
             self.board_dict = board_dict
+        
+        self.last_moved = last_moved
+        self.initial_pos = initial_pos
+        self.final_pos = final_pos
 
     def __str__(self) -> None:
         s = ""
@@ -192,3 +202,15 @@ class Board:
                     arr.append("-")
             s += " ".join(arr) + "\n"
         return s
+
+    def board_copy(self):
+        copy = {}
+        
+        for piece in self.board_dict:
+            copy[(piece[0], piece[1])] = self.board_dict[piece].piece_copy()
+
+        return Board(board_dict = copy, last_moved = self.last_moved, initial_pos = self.initial_pos, final_pos = self.final_pos)
+
+
+
+
