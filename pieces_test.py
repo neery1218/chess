@@ -126,7 +126,7 @@ def test_pawn():
 
 def test_piece_copy():
     p = Pawn(1, 1, Colour.WHITE)
-    d = p.piece_copy()
+    d = p.deepcopy()
 
     assert p.x == d.x 
     assert p.y == d.y 
@@ -138,7 +138,7 @@ def test_piece_copy():
 def test_board_copy():
     board = Board()
 
-    copy_board = board.board_copy()
+    copy_board = board.deepcopy()
 
     assert not copy_board is board
 

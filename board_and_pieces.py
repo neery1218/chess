@@ -53,7 +53,7 @@ class Knight(Piece):
 
         return valid_moves
 
-    def piece_copy(self):
+    def deepcopy(self):
         return Knight(self.x, self.y, self.colour, self.has_moved)
 
 
@@ -65,7 +65,7 @@ class Bishop(Piece):
     def get_valid_moves(self, board, last_moved: str, initial_pos: tuple, final_pos: tuple):
         return self.increment([(1, -1), (1, 1), (-1, 1), (-1, -1)], board)
 
-    def piece_copy(self):
+    def deepcopy(self):
         return Bishop(self.x, self.y, self.colour, self.has_moved)
 
 
@@ -77,7 +77,7 @@ class Rook(Piece):
     def get_valid_moves(self, board, last_moved: str, initial_pos: tuple, final_pos: tuple):
         return self.increment([(1, 0), (0, 1), (-1, 0), (0, -1)], board)
 
-    def piece_copy(self):
+    def deepcopy(self):
         return Rook(self.x, self.y, self.colour, self.has_moved)
 
 
@@ -89,7 +89,7 @@ class Queen(Piece):
     def get_valid_moves(self, board, last_moved: str, initial_pos: tuple, final_pos: tuple):
         return self.increment([(1, 0), (0, 1), (-1, 0), (0, -1), (1, -1), (1, 1), (-1, 1), (-1, -1)], board)
 
-    def piece_copy(self):
+    def deepcopy(self):
         return Queen(self.x, self.y, self.colour, self.has_moved)
 
 
@@ -108,7 +108,7 @@ class King(Piece):
             square for square in all_squares if self.on_board(square)]
         return possible_moves
 
-    def piece_copy(self):
+    def deepcopy(self):
         return King(self.x, self.y, self.colour, self.has_moved)
 
 
@@ -142,7 +142,7 @@ class Pawn(Piece):
                 possible_moves.append((x-1, y + dir_factor, "en passant"))
         return possible_moves
 
-    def piece_copy(self):
+    def deepcopy(self):
         return Pawn(self.x, self.y, self.colour, self.has_moved)
 
 
@@ -203,11 +203,11 @@ class Board:
             s += " ".join(arr) + "\n"
         return s
 
-    def board_copy(self):
+    def deepcopy(self):
         copy = {}
         
         for piece in self.board_dict:
-            copy[(piece[0], piece[1])] = self.board_dict[piece].piece_copy()
+            copy[(piece[0], piece[1])] = self.board_dict[piece].deepcopy()
 
         return Board(board_dict = copy, last_moved = self.last_moved, initial_pos = self.initial_pos, final_pos = self.final_pos)
 
@@ -221,7 +221,7 @@ class Board:
                 king_posn = piece
 
         #get copy of board
-        copy_board = self.board_copy()
+        copy_board = self.deepcopy()
         #search for king's position in opposing colour pieces
         for piece in self.board_dict:
             if self.board_dict[piece].colour != colour and king_posn in self.board_dict[piece].get_valid_moves(copy_board, self.last_moved, self.initial_pos, self.final_pos):
