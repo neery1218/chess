@@ -211,6 +211,23 @@ class Board:
 
         return Board(board_dict = copy, last_moved = self.last_moved, initial_pos = self.initial_pos, final_pos = self.final_pos)
 
+    
+    def in_check(self, colour: Enum):
+        # get king position of same colour
+        letter = "♔" if colour == Colour.BLACK else "♚"
+        king_posn = None
+        for piece in self.board_dict:
+            if self.board_dict[piece].letter == letter and self.board_dict[piece].colour == colour:
+                king_posn = piece
+
+        #get copy of board
+        copy_board = self.board_copy()
+        #search for king's position in opposing colour pieces
+        for piece in self.board_dict:
+            if self.board_dict[piece].colour != colour and king_posn in self.board_dict[piece].get_valid_moves(copy_board, self.last_moved, self.initial_pos, self.final_pos):
+                return True
+        return False
+
 
 
 

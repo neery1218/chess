@@ -128,7 +128,12 @@ def test_piece_copy():
     p = Pawn(1, 1, Colour.WHITE)
     d = p.piece_copy()
 
-    assert p.x == d.x and p.y == d.y and p.colour == d.colour and p.has_moved == d.has_moved and p.letter == d.letter and not p is d
+    assert p.x == d.x 
+    assert p.y == d.y 
+    assert p.colour == d.colour 
+    assert  p.has_moved == d.has_moved 
+    assert p.letter == d.letter 
+    assert not p is d
 
 def test_board_copy():
     board = Board()
@@ -139,4 +144,8 @@ def test_board_copy():
 
     for piece in board.board_dict:
         assert piece in copy_board.board_dict
-        assert board.board_dict[piece].x == copy_board.board_dict[piece].x and board.board_dict[piece].y == copy_board.board_dict[piece].y and board.board_dict[piece].colour == copy_board.board_dict[piece].colour and board.board_dict[piece].has_moved == copy_board.board_dict[piece].has_moved and board.board_dict[piece].letter == copy_board.board_dict[piece].letter
+        assert board.board_dict[piece].x == copy_board.board_dict[piece].x 
+        assert board.board_dict[piece].y == copy_board.board_dict[piece].y 
+        assert board.board_dict[piece].colour == copy_board.board_dict[piece].colour 
+        assert board.board_dict[piece].has_moved == copy_board.board_dict[piece].has_moved 
+        assert board.board_dict[piece].letter == copy_board.board_dict[piece].letter
