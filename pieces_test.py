@@ -121,19 +121,20 @@ def test_pawn():
     b6.board_dict[(0, 3)].has_moved = True
     moves6 = b6.board_dict[(0, 3)].get_valid_moves(
         b6, last_moved, initial_pos, final_pos)
-    assert set(moves6) == set([(0, 2), (1, 2, "en passant")])
+    assert set(moves6) == set([(0, 2), (1, 2, -1)])
 
 
 def test_piece_copy():
     p = Pawn(1, 1, Colour.WHITE)
     d = p.deepcopy()
 
-    assert p.x == d.x 
-    assert p.y == d.y 
-    assert p.colour == d.colour 
-    assert  p.has_moved == d.has_moved 
-    assert p.letter == d.letter 
+    assert p.x == d.x
+    assert p.y == d.y
+    assert p.colour == d.colour
+    assert p.has_moved == d.has_moved
+    assert p.letter == d.letter
     assert not p is d
+
 
 def test_board_copy():
     board = Board()
@@ -144,8 +145,43 @@ def test_board_copy():
 
     for piece in board.board_dict:
         assert piece in copy_board.board_dict
-        assert board.board_dict[piece].x == copy_board.board_dict[piece].x 
-        assert board.board_dict[piece].y == copy_board.board_dict[piece].y 
-        assert board.board_dict[piece].colour == copy_board.board_dict[piece].colour 
-        assert board.board_dict[piece].has_moved == copy_board.board_dict[piece].has_moved 
+        assert board.board_dict[piece].x == copy_board.board_dict[piece].x
+        assert board.board_dict[piece].y == copy_board.board_dict[piece].y
+        assert board.board_dict[piece].colour == copy_board.board_dict[piece].colour
+        assert board.board_dict[piece].has_moved == copy_board.board_dict[piece].has_moved
         assert board.board_dict[piece].letter == copy_board.board_dict[piece].letter
+
+
+def test_check():
+    board = read_board("board_check.txt")
+
+    assert board.in_check(Colour.WHITE) == False
+    assert board.in_check(Colour.BLACK) == True
+
+
+def test_move_without_castling():
+    board = read_board("board3.txt")
+    # want to move the white bishop from (5,7) to (1,3)
+    board.make_move((5, 7), (1, 3))
+    # test normal move
+    move_board = read_board("board_3_bishop_move.txt")
+    move_board.board_dict[(1, 3)].has_moved = True
+    for piece in board.board_dict:
+        assert piece in move_board.board_dict
+        assert board.board_dict[piece].x == move_board.board_dict[piece].x
+        assert board.board_dict[piece].y == move_board.board_dict[piece].y
+        assert board.board_dict[piece].colour == move_board.board_dict[piece].colour
+        assert board.board_dict[piece].has_moved == move_board.board_dict[piece].has_moved
+        assert board.board_dict[piece].letter == move_board.board_dict[piece].letter
+    # test en passant (moving the white pawn from (0,3) to (1,2)) and deleting the pawn at (1,3)
+    board2 = read_board("board6.txt")
+    en_passant_board = read_board("board_6_enpassant_moved.txt")
+    board2.make_move((0, 3), (1, 2, -1))
+    en_passant_board.board_dict[(1, 2)].has_moved = True
+    for piece in board2.board_dict:
+        assert piece in en_passant_board.board_dict
+        assert board2.board_dict[piece].x == en_passant_board.board_dict[piece].x
+        assert board2.board_dict[piece].y == en_passant_board.board_dict[piece].y
+        assert board2.board_dict[piece].colour == en_passant_board.board_dict[piece].colour
+        assert board2.board_dict[piece].has_moved == en_passant_board.board_dict[piece].has_moved
+        assert board2.board_dict[piece].letter == en_passant_board.board_dict[piece].letter

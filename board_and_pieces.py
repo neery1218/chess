@@ -137,9 +137,9 @@ class Pawn(Piece):
         # Case 2: En passant
         if (last_moved == "♙" or last_moved == "♟︎") and abs(final_pos[1] - initial_pos[1]) == 2:
             if (x+1, y) == final_pos:
-                possible_moves.append((x+1, y + dir_factor, "en passant"))
+                possible_moves.append((x+1, y + dir_factor, dir_factor))
             elif (x-1, y) == final_pos:
-                possible_moves.append((x-1, y + dir_factor, "en passant"))
+                possible_moves.append((x-1, y + dir_factor, dir_factor))
         return possible_moves
 
     def deepcopy(self):
@@ -186,7 +186,7 @@ class Board:
             self.board_dict[(6, 0)] = Knight(6, 0, Colour.BLACK)
         else:
             self.board_dict = board_dict
-        
+
         self.last_moved = last_moved
         self.initial_pos = initial_pos
         self.final_pos = final_pos
@@ -205,13 +205,12 @@ class Board:
 
     def deepcopy(self):
         copy = {}
-        
+
         for piece in self.board_dict:
             copy[(piece[0], piece[1])] = self.board_dict[piece].deepcopy()
 
-        return Board(board_dict = copy, last_moved = self.last_moved, initial_pos = self.initial_pos, final_pos = self.final_pos)
+        return Board(board_dict=copy, last_moved=self.last_moved, initial_pos=self.initial_pos, final_pos=self.final_pos)
 
-    
     def in_check(self, colour: Enum):
         # get king position of same colour
         letter = "♔" if colour == Colour.BLACK else "♚"
@@ -220,14 +219,29 @@ class Board:
             if self.board_dict[piece].letter == letter and self.board_dict[piece].colour == colour:
                 king_posn = piece
 
-        #get copy of board
+        # get copy of board
         copy_board = self.deepcopy()
-        #search for king's position in opposing colour pieces
+        # search for king's position in opposing colour pieces
         for piece in self.board_dict:
             if self.board_dict[piece].colour != colour and king_posn in self.board_dict[piece].get_valid_moves(copy_board, self.last_moved, self.initial_pos, self.final_pos):
                 return True
         return False
 
-
-
-
+    def make_move(self, piece_location: tuple, move_location: tuple) -> None:
+        if len(move_location) == 2:
+            moved_piece = self.board_dict[piece_location].deepcopy()
+            del self.board_dict[piece_location]
+            moved_piece.x = move_location[0]
+            moved_piece.y = move_location[1]
+            moved_piece.has_moved = True
+            self.board_dict[move_location] = moved_piece
+        elif len(move_location) == 3:
+            moved_piece = self.board_dict[piece_location].deepcopy()
+            del self.board_dict[piece_location]
+            delete_direction = move_location[2]
+            del self.board_dict[(
+                move_location[0], move_location[1] - delete_direction)]
+            moved_piece.x = move_location[0]
+            moved_piece.y = move_location[1]
+            moved_piece.has_moved = True
+            self.board_dict[(move_location[0], move_location[1])] = moved_piece
