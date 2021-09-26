@@ -185,3 +185,36 @@ def test_move_without_castling():
         assert board2.board_dict[piece].colour == en_passant_board.board_dict[piece].colour
         assert board2.board_dict[piece].has_moved == en_passant_board.board_dict[piece].has_moved
         assert board2.board_dict[piece].letter == en_passant_board.board_dict[piece].letter
+
+
+def test_can_castle():
+    # default starting board, shouldn't be able to castle either way
+    board = read_board("board1.txt")
+    assert board.board_dict[(4, 0)].can_castle(board) == (False, False)
+    # kingside should be true in this case
+    board2 = read_board("board_kingside_true.txt")
+    assert board2.board_dict[(4, 7)].can_castle(board2) == (False, True)
+    # kingside should be false in this case
+    board3 = read_board("board_kingside_false.txt")
+    assert board3.board_dict[(4, 7)].can_castle(board3) == (False, False)
+    # test the blocking of the castle
+    board4 = read_board("board_white_castle_block.txt")
+    assert board4.board_dict[(4, 7)].can_castle(board4) == (True, False)
+    assert board4.board_dict[(4, 0)].can_castle(board4) == (True, True)
+
+def test_castle_move():
+    board = read_board("board_white_castle_block.txt")
+    board.make_move((4,0), ("Queenside",))
+    castled_board = read_board("board_black_queenside_move.txt")
+    castled_board.board_dict[(2,0)].has_moved = True
+    castled_board.board_dict[(3,0)].has_moved = True
+    print(castled_board)
+    for piece in board.board_dict:
+        assert piece in castled_board.board_dict
+        assert board.board_dict[piece].x == castled_board.board_dict[piece].x
+        assert board.board_dict[piece].y == castled_board.board_dict[piece].y
+        assert board.board_dict[piece].colour == castled_board.board_dict[piece].colour
+        assert board.board_dict[piece].has_moved == castled_board.board_dict[piece].has_moved
+        assert board.board_dict[piece].letter == castled_board.board_dict[piece].letter
+    
+

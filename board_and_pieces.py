@@ -22,7 +22,6 @@ class Piece:
         y = self.y
         for x_inc, y_inc in increment_lst:
             for i in range(8):
-                print((x+x_inc*(i+1), y+y_inc*(i+1)))
                 if not self.on_board((x+x_inc*(i+1), y+y_inc*(i+1))):
                     break
                 elif (x+x_inc*(i+1), y+y_inc*(i+1)) in board.board_dict:
@@ -39,7 +38,7 @@ class Knight(Piece):
         super().__init__(x, y, colour)
         self.letter = "♘" if colour == Colour.BLACK else "♞"
 
-    def get_valid_moves(self, board, last_moved: str, initial_pos: tuple, final_pos: tuple):
+    def get_valid_moves(self, board, last_moved: str, initial_pos: tuple, final_pos: tuple, scanning_board=False):
         x = self.x
         y = self.y
         all_squares = [(x+1, y-2), (x+2, y-1), (x+2, y+1), (x+1, y+2),
@@ -62,7 +61,7 @@ class Bishop(Piece):
         super().__init__(x, y, colour)
         self.letter = "♗" if colour == Colour.BLACK else "♝"
 
-    def get_valid_moves(self, board, last_moved: str, initial_pos: tuple, final_pos: tuple):
+    def get_valid_moves(self, board, last_moved: str, initial_pos: tuple, final_pos: tuple, scanning_board=False):
         return self.increment([(1, -1), (1, 1), (-1, 1), (-1, -1)], board)
 
     def deepcopy(self):
@@ -74,7 +73,7 @@ class Rook(Piece):
         super().__init__(x, y, colour)
         self.letter = "♖" if colour == Colour.BLACK else "♜"
 
-    def get_valid_moves(self, board, last_moved: str, initial_pos: tuple, final_pos: tuple):
+    def get_valid_moves(self, board, last_moved: str, initial_pos: tuple, final_pos: tuple, scanning_board=False):
         return self.increment([(1, 0), (0, 1), (-1, 0), (0, -1)], board)
 
     def deepcopy(self):
@@ -86,7 +85,7 @@ class Queen(Piece):
         super().__init__(x, y, colour)
         self.letter = "♕" if colour == Colour.BLACK else "♛"
 
-    def get_valid_moves(self, board, last_moved: str, initial_pos: tuple, final_pos: tuple):
+    def get_valid_moves(self, board, last_moved: str, initial_pos: tuple, final_pos: tuple, scanning_board=False):
         return self.increment([(1, 0), (0, 1), (-1, 0), (0, -1), (1, -1), (1, 1), (-1, 1), (-1, -1)], board)
 
     def deepcopy(self):
@@ -98,7 +97,7 @@ class King(Piece):
         super().__init__(x, y, colour)
         self.letter = "♔" if colour == Colour.BLACK else "♚"
 
-    def get_valid_moves(self, board, last_moved: str, initial_pos: tuple, final_pos: tuple):
+    def get_valid_moves(self, board, last_moved: str, initial_pos: tuple, final_pos: tuple, scanning_board=False):
         x = self.x
         y = self.y
 
@@ -106,7 +105,62 @@ class King(Piece):
                        (x+1, y), (x-1, y+1), (x, y+1), (x+1, y+1)]
         possible_moves = [
             square for square in all_squares if self.on_board(square)]
+        
+        if not scanning_board:
+            castles = self.can_castle(board)
+            if castles[0]:
+                possible_moves.append(("Queenside"))
+            if castles[1]:
+                possible_moves.append(("Kingside"))
+
         return possible_moves
+
+    def can_castle(self, board):
+        # if king has moved return False
+        if self.has_moved:
+            return (False, False)
+
+        queenside = True
+        kingside = True
+        rank = 0 if self.colour == Colour.BLACK else 7
+        # if the queenside rook is no longer in its original place (captured or moved), or it moved but returned back there, or another piece is there instead, queenside castle is not possible
+        if (not (0, rank) in board.board_dict) or board.board_dict[(0, rank)].has_moved:
+            queenside = False
+        # if the kingside rook is no longer in its original place (captured or moved), or it moved but returned back there, or another piece is there instead, kingside castle is not possible
+        if (not (7, rank) in board.board_dict) or board.board_dict[(7, rank)].has_moved:
+            kingside = False
+        # if there are pieces in between king and queenside rook, then queenside castle is also not possible
+        in_btwn_queenside = [(1, rank), (2, rank), (3, rank)]
+        for square in in_btwn_queenside:
+            if square in board.board_dict:
+                queenside = False
+        # if there are pieces in between king and kingside rook, then kingside castle is also not possible
+        in_btwn_kingside = [(5, rank), (6, rank)]
+        for square in in_btwn_kingside:
+            if square in board.board_dict:
+                kingside = False
+        # for every opposing coloured piece, check if the squares in between the king and queenside rook (including the king) are in them
+        # if they are, then queenside castle is not possible
+        in_btwn_queenside.append((self.x, self.y))
+        for piece in board.board_dict:
+            if board.board_dict[piece].colour != self.colour:
+                moves = board.board_dict[piece].get_valid_moves(
+                    board, board.last_moved, board.initial_pos, board.final_pos, True)
+                for square in in_btwn_queenside:
+                    if square in moves:
+                        queenside = False
+        # for every opposing coloured piece, check if the squares in between the king and queenside rook (including the king) are in them
+        # if they are, then queenside castle is not possible
+        in_btwn_kingside.append((self.x, self.y))
+        for piece in board.board_dict:
+            if board.board_dict[piece].colour != self.colour:
+                moves = board.board_dict[piece].get_valid_moves(
+                    board, board.last_moved, board.initial_pos, board.final_pos, True)
+                for square in in_btwn_kingside:
+                    if square in moves:
+                        kingside = False
+
+        return (queenside, kingside)
 
     def deepcopy(self):
         return King(self.x, self.y, self.colour, self.has_moved)
@@ -118,7 +172,7 @@ class Pawn(Piece):
         self.letter = "♙" if colour == Colour.BLACK else "♟︎"
         self.direction_factor = 1 if colour == Colour.BLACK else -1
 
-    def get_valid_moves(self, board, last_moved: str, initial_pos: tuple, final_pos: tuple):
+    def get_valid_moves(self, board, last_moved: str, initial_pos: tuple, final_pos: tuple, scanning_board=False):
         x = self.x
         y = self.y
         dir_factor = self.direction_factor
@@ -223,7 +277,7 @@ class Board:
         copy_board = self.deepcopy()
         # search for king's position in opposing colour pieces
         for piece in self.board_dict:
-            if self.board_dict[piece].colour != colour and king_posn in self.board_dict[piece].get_valid_moves(copy_board, self.last_moved, self.initial_pos, self.final_pos):
+            if self.board_dict[piece].colour != colour and king_posn in self.board_dict[piece].get_valid_moves(copy_board, self.last_moved, self.initial_pos, self.final_pos, True):
                 return True
         return False
 
@@ -245,3 +299,30 @@ class Board:
             moved_piece.y = move_location[1]
             moved_piece.has_moved = True
             self.board_dict[(move_location[0], move_location[1])] = moved_piece
+        else:
+            rank = 0 if self.board_dict[piece_location].colour == Colour.BLACK else 7
+            print(move_location)
+            if move_location[0] == "Queenside":
+                queenside_rook_copy = self.board_dict[(0, rank)].deepcopy()
+                king_copy = self.board_dict[piece_location].deepcopy()
+                del self.board_dict[piece_location]
+                del self.board_dict[(0, rank)]
+                queenside_rook_copy.has_moved = True
+                queenside_rook_copy.x = 3
+                king_copy.has_moved = True
+                king_copy.x = 2
+                self.board_dict[(3,rank)] = queenside_rook_copy
+                self.board_dict[(2,rank)] = king_copy
+            else:
+                kingside_rook_copy = self.board_dict[(7, rank)].deepcopy()
+                king_copy = self.board_dict[piece_location].deepcopy()
+                del self.board_dict[piece_location]
+                del self.board_dict[(7, rank)]
+                kingside_rook_copy.has_moved = True
+                kingside_rook_copy.x = 5
+                king_copy.has_moved = True
+                king_copy.x = 6
+                self.board_dict[(5,rank)] = kingside_rook_copy
+                self.board_dict[(6,rank)] = king_copy
+        return
+
