@@ -208,7 +208,6 @@ def test_castle_move():
     castled_board = read_board("board_black_queenside_move.txt")
     castled_board.board_dict[(2,0)].has_moved = True
     castled_board.board_dict[(3,0)].has_moved = True
-    print(castled_board)
     for piece in board.board_dict:
         assert piece in castled_board.board_dict
         assert board.board_dict[piece].x == castled_board.board_dict[piece].x
@@ -216,5 +215,18 @@ def test_castle_move():
         assert board.board_dict[piece].colour == castled_board.board_dict[piece].colour
         assert board.board_dict[piece].has_moved == castled_board.board_dict[piece].has_moved
         assert board.board_dict[piece].letter == castled_board.board_dict[piece].letter
-    
+
+def test_promote():
+    board = read_board("board_promotion_before.txt")    
+    board.promote((0,0), "Q")
+    promoted_board = read_board("board_promotion_after_to_queen.txt")
+    for piece in board.board_dict:
+        assert piece in promoted_board.board_dict
+        assert board.board_dict[piece].x == promoted_board.board_dict[piece].x
+        assert board.board_dict[piece].y == promoted_board.board_dict[piece].y
+        assert board.board_dict[piece].colour == promoted_board.board_dict[piece].colour
+        assert board.board_dict[piece].has_moved == promoted_board.board_dict[piece].has_moved
+        assert board.board_dict[piece].letter == promoted_board.board_dict[piece].letter
+
+
 

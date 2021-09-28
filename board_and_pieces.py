@@ -31,7 +31,16 @@ class Piece:
                 else:
                     possible_moves.append((x+x_inc*(i+1), y+y_inc*(i+1)))
         return possible_moves
-
+    
+    def filter_moves(self, board, moves_lst):
+        filtered = []
+        for move in moves_lst:
+            print(move)
+            temp_board = board.deepcopy()
+            temp_board.make_move((self.x, self.y), move)
+            if not temp_board.in_check(self.colour):
+                filtered.append(move)
+        return filtered
 
 class Knight(Piece):
     def __init__(self, x: int, y: int, colour: Enum, has_moved=False):
@@ -43,7 +52,7 @@ class Knight(Piece):
         y = self.y
         all_squares = [(x+1, y-2), (x+2, y-1), (x+2, y+1), (x+1, y+2),
                        (x-1, y-2), (x-2, y-1), (x-1, y+2), (x-2, y+1)]
-        # filter out moves that are not even on the board
+        # filter out moves that are not on the board
         moves_on_board = [
             square for square in all_squares if self.on_board(square)]
 
@@ -109,9 +118,9 @@ class King(Piece):
         if not scanning_board:
             castles = self.can_castle(board)
             if castles[0]:
-                possible_moves.append(("Queenside"))
+                possible_moves.append(("Queenside",))
             if castles[1]:
-                possible_moves.append(("Kingside"))
+                possible_moves.append(("Kingside",))
 
         return possible_moves
 
@@ -289,6 +298,9 @@ class Board:
             moved_piece.y = move_location[1]
             moved_piece.has_moved = True
             self.board_dict[move_location] = moved_piece
+            #promote piece if moved piece is a pawn and it reached the end
+            if (self.board_dict[move_location].letter == "♙" and move_location[1] == 7) or (self.board_dict[move_location].letter == "♟︎" and move_location[1] == 0):
+                self.promote(move_location)
         elif len(move_location) == 3:
             moved_piece = self.board_dict[piece_location].deepcopy()
             del self.board_dict[piece_location]
@@ -325,4 +337,23 @@ class Board:
                 self.board_dict[(5,rank)] = kingside_rook_copy
                 self.board_dict[(6,rank)] = king_copy
         return
+    
+    def promote(self, move_location: tuple, piece="") -> None:
+        colour = self.board_dict[move_location].colour
+        valid_choice = False if not piece else True
+        while not valid_choice:
+            piece = input("What piece would you like to promote to at " + str(move_location) + " ?: ").upper()
+            if piece == "Q" or piece == "R" or piece == "N" or piece == "B":
+                valid_choice = True
+        #set piece at move_location to the piece of choice
+        if piece == "N":
+            self.board_dict[move_location] = Knight(move_location[0], move_location[1], colour)
+        elif piece == "B":
+            self.board_dict[move_location] = Bishop(move_location[0], move_location[1], colour)
+        elif piece == "R":
+            self.board_dict[move_location] = Rook(move_location[0], move_location[1], colour)
+        else:
+            self.board_dict[move_location] = Queen(move_location[0], move_location[1], colour)
+        return
+        
 
