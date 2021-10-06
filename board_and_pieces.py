@@ -31,16 +31,6 @@ class Piece:
                 else:
                     possible_moves.append((x+x_inc*(i+1), y+y_inc*(i+1)))
         return possible_moves
-    
-    def filter_moves(self, board, moves_lst):
-        filtered = []
-        for move in moves_lst:
-            print(move)
-            temp_board = board.deepcopy()
-            temp_board.make_move((self.x, self.y), move)
-            if not temp_board.in_check(self.colour):
-                filtered.append(move)
-        return filtered
 
 class Knight(Piece):
     def __init__(self, x: int, y: int, colour: Enum, has_moved=False):
@@ -110,19 +100,21 @@ class King(Piece):
         x = self.x
         y = self.y
 
-        all_squares = [(x-1, y-1), (x, y-1), (x+1, y-1), (x-1, y),
+        moves_on_board = [(x-1, y-1), (x, y-1), (x+1, y-1), (x-1, y),
                        (x+1, y), (x-1, y+1), (x, y+1), (x+1, y+1)]
-        possible_moves = [
-            square for square in all_squares if self.on_board(square)]
+        
+        possible_moves = [square for square in moves_on_board if self.on_board(square)]
+
+        valid_moves = [move for move in possible_moves if (not move in board.board_dict) or (board.board_dict[move].colour != self.colour)]
         
         if not scanning_board:
             castles = self.can_castle(board)
             if castles[0]:
-                possible_moves.append(("Queenside",))
+                valid_moves.append(("Queenside",))
             if castles[1]:
-                possible_moves.append(("Kingside",))
+                valid_moves.append(("Kingside",))
 
-        return possible_moves
+        return valid_moves
 
     def can_castle(self, board):
         # if king has moved return False
@@ -336,6 +328,9 @@ class Board:
                 king_copy.x = 6
                 self.board_dict[(5,rank)] = kingside_rook_copy
                 self.board_dict[(6,rank)] = king_copy
+        self.last_moved = self.board_dict[(move_location[0], move_location[1])].letter if len(move_location) != 1 else "castle"
+        self.initial_pos = piece_location
+        self.final_pos = move_location
         return
     
     def promote(self, move_location: tuple, piece="") -> None:
@@ -345,6 +340,8 @@ class Board:
             piece = input("What piece would you like to promote to at " + str(move_location) + " ?: ").upper()
             if piece == "Q" or piece == "R" or piece == "N" or piece == "B":
                 valid_choice = True
+            else:
+                print("Invalid choice. Try again.")
         #set piece at move_location to the piece of choice
         if piece == "N":
             self.board_dict[move_location] = Knight(move_location[0], move_location[1], colour)
@@ -355,5 +352,37 @@ class Board:
         else:
             self.board_dict[move_location] = Queen(move_location[0], move_location[1], colour)
         return
+    
+    def filter_moves(self, moves_lst, piece_location):
+        filtered = []
+        colour = self.board_dict[piece_location].colour
+        for move in moves_lst:
+            temp_board = self.deepcopy()
+            temp_board.make_move((piece_location[0], piece_location[1]), move)
+            if not temp_board.in_check(colour):
+                filtered.append(move)
+        return filtered
+
+    def is_checkmate(self, colour):
+        copy_board = self.deepcopy()
+        for piece in self.board_dict:
+            if self.board_dict[piece].colour == colour:
+                moves = self.filter_moves(self.board_dict[piece].get_valid_moves(copy_board, self.last_moved, self.initial_pos, self.final_pos), (self.board_dict[piece].x,self.board_dict[piece].y))
+                if len(moves) > 0: 
+                    return False
+        if self.in_check(colour):
+            return True
+        return False
+
+    def is_draw(self, colour):
+        copy_board = self.deepcopy()
+        for piece in self.board_dict:
+            if self.board_dict[piece].colour == colour:
+                moves = self.filter_moves(self.board_dict[piece].get_valid_moves(copy_board, self.last_moved, self.initial_pos, self.final_pos), (self.board_dict[piece].x,self.board_dict[piece].y))
+                if len(moves) > 0: 
+                    return False
         
+        if not self.in_check(colour):
+            return True
+        return False
 

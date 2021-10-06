@@ -1,4 +1,6 @@
 from board_and_pieces import *
 
 board = Board()
-print(board)
+
+is_checkmate = False
+is_draw = False

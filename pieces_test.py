@@ -228,5 +228,24 @@ def test_promote():
         assert board.board_dict[piece].has_moved == promoted_board.board_dict[piece].has_moved
         assert board.board_dict[piece].letter == promoted_board.board_dict[piece].letter
 
+def test_filter_moves():
+    knight_pin_board = read_board("board_pinned_knight.txt")
+    #testing generic filter_moves case
+    filtered = knight_pin_board.filter_moves(knight_pin_board.board_dict[(2,5)].get_valid_moves(knight_pin_board, "", None, None), (2,5))
+    assert filtered == []
+
+def test_checkmate():
+    scholars_mate_board = read_board("board_scholars_mate.txt")
+    #print(scholars_mate_board.in_check(Colour.WHITE))
+    assert scholars_mate_board.is_checkmate(Colour.WHITE) == True
+
+def test_draw():
+    #note that the only draw case that is here is stalemate
+    stalemate_board = read_board("board_stalemate.txt")
+    assert stalemate_board.is_draw(Colour.BLACK) == True
+    assert stalemate_board.is_draw(Colour.WHITE) == False
+
+
+
 
 
