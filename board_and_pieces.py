@@ -38,7 +38,7 @@ class Knight(Piece):
         super().__init__(x, y, colour)
         self.letter = "♘" if colour == Colour.BLACK else "♞"
 
-    def get_valid_moves(self, board, last_moved: str, initial_pos: tuple, final_pos: tuple, include_castle_moves=False):
+    def get_valid_moves(self, board, last_moved: str, initial_pos: tuple, final_pos: tuple, exclude_castle_moves=False):
         x = self.x
         y = self.y
         all_squares = [(x+1, y-2), (x+2, y-1), (x+2, y+1), (x+1, y+2),
@@ -61,7 +61,7 @@ class Bishop(Piece):
         super().__init__(x, y, colour)
         self.letter = "♗" if colour == Colour.BLACK else "♝"
 
-    def get_valid_moves(self, board, last_moved: str, initial_pos: tuple, final_pos: tuple, include_castle_moves=False):
+    def get_valid_moves(self, board, last_moved: str, initial_pos: tuple, final_pos: tuple, exclude_castle_moves=False):
         return self.increment([(1, -1), (1, 1), (-1, 1), (-1, -1)], board)
 
     def deepcopy(self):
@@ -73,7 +73,7 @@ class Rook(Piece):
         super().__init__(x, y, colour)
         self.letter = "♖" if colour == Colour.BLACK else "♜"
 
-    def get_valid_moves(self, board, last_moved: str, initial_pos: tuple, final_pos: tuple, include_castle_moves=False):
+    def get_valid_moves(self, board, last_moved: str, initial_pos: tuple, final_pos: tuple, exclude_castle_moves=False):
         return self.increment([(1, 0), (0, 1), (-1, 0), (0, -1)], board)
 
     def deepcopy(self):
@@ -85,7 +85,7 @@ class Queen(Piece):
         super().__init__(x, y, colour)
         self.letter = "♕" if colour == Colour.BLACK else "♛"
 
-    def get_valid_moves(self, board, last_moved: str, initial_pos: tuple, final_pos: tuple, include_castle_moves=False):
+    def get_valid_moves(self, board, last_moved: str, initial_pos: tuple, final_pos: tuple, exclude_castle_moves=False):
         return self.increment([(1, 0), (0, 1), (-1, 0), (0, -1), (1, -1), (1, 1), (-1, 1), (-1, -1)], board)
 
     def deepcopy(self):
@@ -97,7 +97,7 @@ class King(Piece):
         super().__init__(x, y, colour)
         self.letter = "♔" if colour == Colour.BLACK else "♚"
 
-    def get_valid_moves(self, board, last_moved: str, initial_pos: tuple, final_pos: tuple, include_castle_moves=False):
+    def get_valid_moves(self, board, last_moved: str, initial_pos: tuple, final_pos: tuple, exclude_castle_moves=False):
         x = self.x
         y = self.y
 
@@ -110,7 +110,7 @@ class King(Piece):
         valid_moves = [move for move in possible_moves if (
             not move in board.board_dict) or (board.board_dict[move].colour != self.colour)]
 
-        if not include_castle_moves:
+        if not exclude_castle_moves:
             can_queenside, can_kingside = self.can_castle(board)
             if can_queenside:
                 valid_moves.append(("Queenside",))
@@ -149,7 +149,7 @@ class King(Piece):
         for piece in board.board_dict:
             if board.board_dict[piece].colour != self.colour:
                 moves = board.board_dict[piece].get_valid_moves(
-                    board, board.last_moved, board.initial_pos, board.final_pos, include_castle_moves=True)
+                    board, board.last_moved, board.initial_pos, board.final_pos, exclude_castle_moves=True)
                 for square in in_btwn_queenside:
                     if square in moves:
                         queenside = False
@@ -159,7 +159,7 @@ class King(Piece):
         for piece in board.board_dict:
             if board.board_dict[piece].colour != self.colour:
                 moves = board.board_dict[piece].get_valid_moves(
-                    board, board.last_moved, board.initial_pos, board.final_pos, include_castle_moves=True)
+                    board, board.last_moved, board.initial_pos, board.final_pos, exclude_castle_moves=True)
                 for square in in_btwn_kingside:
                     if square in moves:
                         kingside = False
@@ -176,7 +176,7 @@ class Pawn(Piece):
         self.letter = "♙" if colour == Colour.BLACK else "♟︎"
         self.direction_factor = 1 if colour == Colour.BLACK else -1
 
-    def get_valid_moves(self, board, last_moved: str, initial_pos: tuple, final_pos: tuple, include_castle_moves=False):
+    def get_valid_moves(self, board, last_moved: str, initial_pos: tuple, final_pos: tuple, exclude_castle_moves=False):
         x = self.x
         y = self.y
         dir_factor = self.direction_factor
@@ -281,7 +281,7 @@ class Board:
         copy_board = self.deepcopy()
         # search for king's position in opposing colour pieces
         for piece in self.board_dict:
-            if self.board_dict[piece].colour != colour and king_posn in self.board_dict[piece].get_valid_moves(copy_board, self.last_moved, self.initial_pos, self.final_pos, include_castle_moves=True):
+            if self.board_dict[piece].colour != colour and king_posn in self.board_dict[piece].get_valid_moves(copy_board, self.last_moved, self.initial_pos, self.final_pos, exclude_castle_moves=True):
                 return True
         return False
 
@@ -379,7 +379,7 @@ class Board:
         for piece in self.board_dict:
             if self.board_dict[piece].colour == colour:
                 moves = self.filter_moves(self.board_dict[piece].get_valid_moves(
-                    copy_board, self.last_moved, self.initial_pos, self.final_pos, include_castle_moves=True), (self.board_dict[piece].x, self.board_dict[piece].y))
+                    copy_board, self.last_moved, self.initial_pos, self.final_pos, exclude_castle_moves=True), (self.board_dict[piece].x, self.board_dict[piece].y))
                 if len(moves) > 0:
                     return False
         if self.in_check(colour):
@@ -391,7 +391,7 @@ class Board:
         for piece in self.board_dict:
             if self.board_dict[piece].colour == colour:
                 moves = self.filter_moves(self.board_dict[piece].get_valid_moves(
-                    copy_board, self.last_moved, self.initial_pos, self.final_pos, include_castle_moves=True), (self.board_dict[piece].x, self.board_dict[piece].y))
+                    copy_board, self.last_moved, self.initial_pos, self.final_pos, exclude_castle_moves=True), (self.board_dict[piece].x, self.board_dict[piece].y))
                 if len(moves) > 0:
                     return False
 
