@@ -15,27 +15,29 @@ while not game_over:
     while not valid_piece:
         y = int(input("Enter row of piece you want to move: "))
         x = int(input("Enter column of piece you want to move: "))
-        if (x, y) in board.board_dict and ((whites_turn and board.board_dict[(x,y)].colour == Colour.WHITE) or (not whites_turn and board.board_dict[(x,y)].colour == Colour.BLACK)) and len(board.filter_moves(board.board_dict[(x,y)].get_valid_moves(board, board.last_moved, board.initial_pos, board.final_pos), (x,y))) > 0:
+        if (x, y) in board.board_dict and ((whites_turn and board.board_dict[(x, y)].colour == Colour.WHITE) or (not whites_turn and board.board_dict[(x, y)].colour == Colour.BLACK)) and len(board.filter_moves(board.board_dict[(x, y)].get_valid_moves(board, board.last_moved, board.initial_pos, board.final_pos), (x, y))) > 0:
             valid_piece = True
         else:
             print("Invalid piece selected. Try again. ")
-    
-    moves = board.filter_moves(board.board_dict[(x,y)].get_valid_moves(board, board.last_moved, board.initial_pos, board.final_pos), (x,y))
+
+    moves = board.filter_moves(board.board_dict[(x, y)].get_valid_moves(
+        board, board.last_moved, board.initial_pos, board.final_pos), (x, y))
 
     print(moves)
-    
+
     # get move location
 
     valid_move = False
     index = None
     while not valid_move:
-        index = int(input("Enter index of moves list above that you would like to move to: "))
+        index = int(
+            input("Enter index of moves list above that you would like to move to: "))
         if 0 <= index < len(moves):
             valid_move = True
         else:
             print("Invalid move index. Try again.")
-    
-    board.make_move((x,y), moves[index])
+
+    board.make_move((x, y), moves[index])
 
     colour = Colour.BLACK if whites_turn else Colour.WHITE
 
@@ -57,6 +59,3 @@ if is_draw:
 if is_checkmate:
     colour = "White" if whites_turn else "Black"
     print("Checkmate. " + colour + " wins.")
-
-
-
